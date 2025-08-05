@@ -3,9 +3,7 @@
 //Process the registration for the website, user, password, age, first login and last login are needed, also approval
 $u = $_POST["user"];
 $p = $_POST["password"];
-$a = $_POST["age"];
-$first_login = date("Y-m-d H:i:s");
-$last_login = date("Y-m-d H:i:s");
+
 
 
 
@@ -19,7 +17,7 @@ $check_sql = "SELECT * FROM users WHERE username = '$u'";
 
 
 
-$sql = "INSERT INTO users (username, bestpassword, age, firstLogin, lastLogin, approved) VALUES ('$u',SHA2(CONCAT('$p','salt'),224), $a, '$first_login', '$last_login')";
+$sql = "INSERT INTO users (username,password) VALUES ('$u',SHA2(CONCAT('$p','salt'),224))";
 
 if($_SERVER['HTTP_HOST'] == "127.0.0.1") {
     $mysqli = new mysqli("localhost", "root", "", "mca");
