@@ -6,7 +6,7 @@ $p = $_POST["password"];
 $a = $_POST["age"];
 $first_login = date("Y-m-d H:i:s");
 $last_login = date("Y-m-d H:i:s");
-$approved = 1;
+
 
 
 //check if the user already exists
@@ -19,7 +19,7 @@ $check_sql = "SELECT * FROM users WHERE username = '$u'";
 
 
 
-$sql = "INSERT INTO users (username, bestpassword, age, firstLogin, lastLogin, approved) VALUES ('$u',SHA2(CONCAT('$p','salt'),224), $a, '$first_login', '$last_login', $approved)";
+$sql = "INSERT INTO users (username, bestpassword, age, firstLogin, lastLogin, approved) VALUES ('$u',SHA2(CONCAT('$p','salt'),224), $a, '$first_login', '$last_login')";
 
 if($_SERVER['HTTP_HOST'] == "127.0.0.1") {
     $mysqli = new mysqli("localhost", "root", "", "mca");
