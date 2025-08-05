@@ -6,3 +6,5 @@ function road1(){
     graphics.fillStyle="gray";
     graphics.fillRect(100,100, canvas.width,100);
 }
+
+road1();
