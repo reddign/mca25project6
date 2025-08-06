@@ -15,13 +15,14 @@ doodleImg.onload = function() {
 var dorklyY = 100;
 var dorklyX = 100;
 var velocity = 0;
-const GRAVITY = 0.4; // Reduced gravity
-const JUMP_FORCE = -15; // Stronger jump
+const GRAVITY = 0.4; 
+const JUMP_FORCE = -15;
 
 var keyState = ['ArrowLeft', 'ArrowRight'].reduce((acc, key) => {
     acc[key] = false;
     return acc;
 }, {});
+
 var savePlatforms = [];
 
 function gameLoop() {
@@ -39,7 +40,7 @@ function gameLoop() {
     // Apply gravity and velocity
     velocity += GRAVITY;
     dorklyY += velocity;
-    
+
     // Update camera to follow player
     const idealCameraY = dorklyY - canvas.height * 0.6; // Keep player at 60% of screen height
     cameraY += (idealCameraY - cameraY) * 0.1; // Smooth camera movement
@@ -64,7 +65,6 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Event listeners for controls
 addEventListener("keydown", function(event) {
     if (event.key in keyState) {
         keyState[event.key] = true;
@@ -76,22 +76,6 @@ addEventListener("keyup", function(event) {
         keyState[event.key] = false;
     }
 });
-
-
-// on mous click
-
-// acceleration = -10;
-// velocity = 1;
-
-
-// animate 
-
-// if(velocity < 0){
-//     velocity = velocity*acceleration
-// birdY = birdY - velocity;
-// velocity = velocity - 2;
-
-
 
 
 function platform(){
@@ -149,6 +133,7 @@ function platform(){
         }
     }
 }
+
 
 function canvasCut(){
     // Clear the entire canvas first
