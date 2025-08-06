@@ -3,20 +3,28 @@ console.log("canvas");
 const graphics = canvas.getContext("2d");
 
 const pipeWidth = 30;
-const pipeGap = 40; // Fixed gap between top and bottom pipes
+const pipeGap = 67; // Fixed gap between top and bottom pipes
 const pipeSpeed = 2;
 const FPS = 67;
 const image = new Image();
 image.src = "flappy-bird.png";
 let birdY = 55;
+let gravity = .2; 
 
 // const intervalset = window.setInterval(FPS/1000,animate)
 let lives = 1;
 
 
 
-function animate(){
+image.onload = function() {
+   window.setInterval(animate,FPS/1000)
+    animate();
+};
 
+
+function animate(){
+clear();
+falling()
 pipes();
 drawbird();
 
@@ -24,7 +32,8 @@ drawbird();
 
 dies();
 }
-animate();
+
+
 
 
 function pipes(){
@@ -43,28 +52,33 @@ function createPipe() {
   const bottomY = topHeight + pipeGap;
   const bottomhight = canvas.height - bottomY;
 
-  graphics.fillstyle="black";
+graphics.fillStyle = "black";
         graphics.fillRect(150,0,pipeWidth, topHeight);
         graphics.fillRect(150,bottomY,pipeWidth, bottomhight);
         const bottomPipe = document.createElement("div");
 
 }
 
+function clear(){
+    graphics.fillStyle =  "rgb(114, 176, 235)";
+    graphics.fillRect(0,0,canvas.width,canvas.height);
+}
 addEventListener("click", jump);
 
 
 function jump() {
     
-  birdY += 5;
+  birdY -= 25;
+  
 }
-const birdInterval = setInterval(() => {
-    birdY += 1; // Bird goes down 1 pixel every second
-    animate();
-}, FPS/ 1000);
-
+const birdInterval = setInterval(FPS/1000,animate)
+function falling(){
+    birdY += gravity;
+}
 function dies(){
     if (birdY >= canvas.height || birdY <= 0) {
         lives--;
+        
         if (lives <= 0) {
             clearInterval(birdInterval);
             endscreen();
@@ -108,3 +122,10 @@ function dies(){
 
 // window.setInterval(animate,FPS/1000)
 
+// onmouseclick
+// velocity+10;
+// animate
+
+// if (v>0)
+//     bbirdy=birdy-velcoity;
+// velcoity=velcoity-2;
