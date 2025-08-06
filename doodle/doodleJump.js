@@ -18,7 +18,7 @@ var velocity = 0;
 const GRAVITY = 0.4; // Reduced gravity
 const JUMP_FORCE = -15; // Stronger jump
 
-var keyState = ['ArrowLeft', 'ArrowRight', 'ArrowUp'].reduce((acc, key) => {
+var keyState = ['ArrowLeft', 'ArrowRight'].reduce((acc, key) => {
     acc[key] = false;
     return acc;
 }, {});
@@ -39,13 +39,7 @@ function gameLoop() {
     // Apply gravity and velocity
     velocity += GRAVITY;
     dorklyY += velocity;
-
-    // Handle jumping
-    if (keyState['ArrowUp']) {
-        velocity = JUMP_FORCE;
-        keyState['ArrowUp'] = false; // Reset jump immediately to prevent holding
-    }
-
+    
     // Update camera to follow player
     const idealCameraY = dorklyY - canvas.height * 0.6; // Keep player at 60% of screen height
     cameraY += (idealCameraY - cameraY) * 0.1; // Smooth camera movement
