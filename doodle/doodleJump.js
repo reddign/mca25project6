@@ -5,6 +5,8 @@ var graphics = canvas.getContext("2d");
 
 var cameraY = 0; 
 var highestPlatform = 0; // Track highest platform for infinite generation
+var score = 0;
+var highestPoint = 0;
 
 const doodleImgLeft = new Image();
 const doodleImgRight = new Image();
@@ -66,6 +68,17 @@ function gameLoop() {
     const idealCameraY = dorklyY - canvas.height * 0.6; // Keep player at 60% of screen height
     cameraY += (idealCameraY - cameraY) * 0.1; // Smooth camera movement
     
+    // Update score based on highest point reached
+    if (-dorklyY > highestPoint) {
+        highestPoint = -dorklyY;
+        score = Math.floor(highestPoint / 10); // Convert height to score
+    }
+    
+    // Draw score
+    graphics.fillStyle = 'black';
+    graphics.font = '24px Arial';
+    graphics.fillText('Score: ' + score, 20, 30);
+    
     // Keep player in horizontal bounds
     if (dorklyX < 0) dorklyX = 0;
     if (dorklyX > canvas.width - 50) dorklyX = canvas.width - 50;
@@ -81,6 +94,9 @@ function gameLoop() {
         dorklyY = canvas.height + cameraY - 50;
         velocity = 0;
     }
+    
+    // Check for game over
+    checkGameOver();
     
     // Loop the animation
     requestAnimationFrame(gameLoop);
@@ -171,8 +187,23 @@ function restartGame() {
 
 //check if he hit the bottom of the screen and displays game over
 function checkGameOver() {
-    if (dorklyY > canvas.height) {
-        alert("Game Over! Press OK to restart.");
+    if (dorklyY > canvas.height + cameraY + 100) {
+        saveScore(score);
+        alert("Game Over! Your score: " + score);
         restartGame();
     }
+}
+
+//send score to processScores.php
+
+function saveScore(score) {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "processScores.php", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log("Score saved successfully: " + score);
+        }
+    };
+    xhr.send("game=doodleJump&score=" + score + "&username=" + encodeURIComponent(localStorage.getItem('username')));
 }

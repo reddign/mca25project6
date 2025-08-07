@@ -23,6 +23,7 @@
         <script src="doodleJump.js" defer></script>
 
          <?php
+         
  if($_SERVER['HTTP_HOST'] == "127.0.0.1") {
     $mysqli = new mysqli("localhost", "root", "", "mca");
 } else {
@@ -32,10 +33,6 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
     exit;
 }
-
-               //make a SQL message
-$sql = "select * FROM scores
-where game='pong';";
 
 
 $result = $mysqli -> query($sql);
