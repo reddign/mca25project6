@@ -6,17 +6,36 @@ var graphics = canvas.getContext("2d");
 var cameraY = 0; 
 var highestPlatform = 0; // Track highest platform for infinite generation
 
-const doodleImg = new Image();
-doodleImg.src = "Doodlejumpdorkly.webp";
-doodleImg.onload = function() {
-    requestAnimationFrame(gameLoop);
+const doodleImgLeft = new Image();
+const doodleImgRight = new Image();
+let imagesLoaded = 0;
+
+function startGame() {
+    if (imagesLoaded === 2) {
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+doodleImgLeft.onload = function() {
+    imagesLoaded++;
+    startGame();
 };
+
+doodleImgRight.onload = function() {
+    imagesLoaded++;
+    startGame();
+};
+
+// Set the image sources after setting up onload handlers
+doodleImgLeft.src = "Doodlejumpdorkly.webp";
+doodleImgRight.src = "transparent-Photoroom.png";
 
 var dorklyY = 100;
 var dorklyX = 100;
 var velocity = 0;
 const GRAVITY = 0.4; 
-const JUMP_FORCE = -15;
+const JUMP_FORCE = -17;
+var imageorientation = doodleImgLeft;
 
 var keyState = ['ArrowLeft', 'ArrowRight'].reduce((acc, key) => {
     acc[key] = false;
@@ -32,9 +51,11 @@ function gameLoop() {
     // Handle movement
     if (keyState['ArrowLeft']) {
         dorklyX -= 5;
+        imageorientation = doodleImgLeft;
     }
     if (keyState['ArrowRight']) {
         dorklyX += 5;
+        imageorientation = doodleImgRight;
     }
     
     // Apply gravity and velocity
@@ -50,9 +71,9 @@ function gameLoop() {
     if (dorklyX > canvas.width - 50) dorklyX = canvas.width - 50;
     
     // Draw the character (adjusted for camera position)
-    graphics.drawImage(doodleImg, dorklyX, dorklyY - cameraY, 50, 50);
+    graphics.drawImage(imageorientation, dorklyX, dorklyY - cameraY, 50, 50);
     
-    // Create and check platform collisions (now handles camera position)
+    // Create and check platform collisions 
     platform();
     
     // Keep character in bounds
@@ -122,12 +143,13 @@ function platform(){
             graphics.closePath();
         }
 
-        // Check collision only when moving downward
+        // Check collision only when moving downward, if hits bottom of canvas stops moving down
         if (velocity > 0 && 
             dorklyY + 50 >= platform.y && 
             dorklyY + 50 <= platform.y + platform.height && 
             dorklyX + 25 >= platform.x && 
-            dorklyX + 25 <= platform.x + platform.width) {
+            dorklyX + 25 <= platform.x + platform.width
+        ) {
             dorklyY = platform.y - 50;
             velocity = JUMP_FORCE; // Bounce on collision
         }
@@ -135,9 +157,22 @@ function platform(){
 }
 
 
-function canvasCut(){
-    // Clear the entire canvas first
-graphics.clearRect(0, 0, canvas.width, canvas.height); 
-graphics.drawImage(canvas, 0, 0, canvas.width / 2, canvas.height, 0, 0, canvas.width / 2, canvas.height); 
+//function to restart the game
+function restartGame() {
+    dorklyX = canvas.width / 2 - 25;
+    dorklyY = canvas.height - 100;
+    velocity = 0;
+    cameraY = 0;
+    savePlatforms = [];
+    highestPlatform = canvas.height;
+    platform();
+    requestAnimationFrame(gameLoop);
+}
 
+//check if he hit the bottom of the screen and displays game over
+function checkGameOver() {
+    if (dorklyY > canvas.height) {
+        alert("Game Over! Press OK to restart.");
+        restartGame();
+    }
 }

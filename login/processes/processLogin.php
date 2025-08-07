@@ -4,7 +4,7 @@ session_start();
 $u = $_POST["user"];
 $p = $_POST["password"];
 
-$sql = "SELECT * FROM users WHERE username = '$u' AND bestpassword = SHA2(CONCAT('$p','salt'),224);";
+$sql = "SELECT * FROM users WHERE username = '$u' AND password = SHA2(CONCAT('$p','salt'),224);";
 
 
 if($_SERVER['HTTP_HOST'] == "127.0.0.1") {
@@ -25,13 +25,13 @@ if (is_array($rows) &&  array_key_exists(0,$rows)) {
 
         // User found, keep them logged in
         $_SESSION["LoggedIn"] = "YES";
-        $_SESSION["coins"] = 100;
+        
         $_SESSION["UserID"] = $u;
-    header("Location: ../../navigation/projects.htm");
+    header("Location: ../../Homepage/homepage.htm");
 }else{
     $_SESSION["LoggedIn"]="NO";
     $_SESSION["UserID"] = "";
-    $_SESSION["coins"] = 0;
+    
     echo "Login failed. Please check your username and password.";
 }
 
