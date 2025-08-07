@@ -185,8 +185,8 @@ function dies() {
         }
     }
     if (
-    (40 > pipeX1 && 10 < pipeX1 + pipeWidth) &&
-    (birdY < topHeight1 || birdY + 30 > bottomY1)) {
+    (30 > pipeX1 && 10 < pipeX1 + pipeWidth) &&
+    (birdY < topHeight1-5 || birdY + 20 > bottomY1)) {
      lives--;
         if (lives <= 0) {
             clearInterval(birdInterval);
@@ -197,8 +197,8 @@ function dies() {
     }
 // Hit pillar 2 (top or bottom)
 if (
-    (40 > pipeX2 && 10 < pipeX2 + pipeWidth) &&
-    (birdY < topHeight2 || birdY + 30 > bottomY2)) {
+    (30 > pipeX2 && 10 < pipeX2 + pipeWidth) &&
+    (birdY < topHeight2-5 || birdY + 20 > bottomY2)) {
      lives--;
         if (lives <= 0) {
             clearInterval(birdInterval);
