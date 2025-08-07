@@ -36,8 +36,8 @@ doodleImgRight.onload = function() {
 doodleImgLeft.src = "Doodlejumpdorkly.webp";
 doodleImgRight.src = "transparent-Photoroom.png";
 
-var dorklyY = canvas.width / 2 - 75;
-var dorklyX = canvas.height - 100;
+var dorklyX = canvas.width / 2 - 35;
+var dorklyY = canvas.height - 140;
 var velocity = 0;
 const GRAVITY = 0.4; 
 const JUMP_FORCE = -16;
@@ -120,10 +120,11 @@ function gameLoop() {
     }
     
     // Check for game over
-    checkGameOver();
     
     // Loop the animation
     requestAnimationFrame(gameLoop);
+    checkGameOver();
+    
 }
 
 function drawPlatform(x, y, width, height) {
