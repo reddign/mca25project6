@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crossy Road Lite - Levels</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Crossy Road Lite</h1>
+<div>
+  <label>Select Skin: </label>
+  <select id="skin-select">
+    <option value="green" selected>Green Frog</option>
+    <option value="blue">Blue Frog</option>
+    <option value="purple">Purple Frog</option>
+    <option value="orange">Orange Frog</option>
+  </select>
+</div>
+
+  <div>
+    <label>Select Difficulty: </label>
+    <select id="level-select">
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+    <button id="start-btn">Start Game</button>
+  </div>
+
+  <div id="game-board"></div>
+
+  <p>Use arrow keys to move your frog (green square) to the top without getting hit by cars (red squares).</p>
+
+  <script src="script.js"></script>
+</body>
+</html>
