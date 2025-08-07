@@ -4,7 +4,11 @@ canvas.height = 600;
 var graphics = canvas.getContext("2d");
 
 var cameraY = 0; 
-var highestPlatform = 0; // Track highest platform for infinite generation
+var highestPlatform = 0; // Track highest platform for infinitvar gameRunning = false; // Start as false until player presses a key
+
+let gameStarted = false;
+
+
 var score = 0;
 var highestPoint = 0;
 
@@ -28,15 +32,15 @@ doodleImgRight.onload = function() {
     startGame();
 };
 
-// Set the image sources after setting up onload handlers
+
 doodleImgLeft.src = "Doodlejumpdorkly.webp";
 doodleImgRight.src = "transparent-Photoroom.png";
 
-var dorklyY = 100;
-var dorklyX = 100;
+var dorklyY = canvas.width / 2 - 75;
+var dorklyX = canvas.height - 100;
 var velocity = 0;
 const GRAVITY = 0.4; 
-const JUMP_FORCE = -17;
+const JUMP_FORCE = -16;
 var imageorientation = doodleImgLeft;
 
 var keyState = ['ArrowLeft', 'ArrowRight'].reduce((acc, key) => {
@@ -49,6 +53,24 @@ var savePlatforms = [];
 function gameLoop() {
     // Clear the canvas
     graphics.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (!gameStarted) {
+        // Draw the starting platform
+        drawPlatform(canvas.width / 2 - 75, canvas.height - 100, 150, 20);
+        // Draw the character
+        graphics.drawImage(imageorientation, dorklyX, dorklyY, 50, 50);
+        
+        // Draw start instructions
+        graphics.fillStyle = 'black';
+        graphics.font = 'bold 32px Arial';
+        graphics.textAlign = 'center';
+        graphics.fillText('Press any arrow key to start!', canvas.width / 2, canvas.height / 2);
+        
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+    
+    if (!gameRunning) return;
     
     // Handle movement
     if (keyState['ArrowLeft']) {
@@ -64,10 +86,12 @@ function gameLoop() {
     velocity += GRAVITY;
     dorklyY += velocity;
 
-    // Update camera to follow player
+  
+  // Update camera to follow player
     const idealCameraY = dorklyY - canvas.height * 0.6; // Keep player at 60% of screen height
-    cameraY += (idealCameraY - cameraY) * 0.1; // Smooth camera movement
-    
+    cameraY += (idealCameraY - cameraY) * 0.1;     
+
+
     // Update score based on highest point reached
     if (-dorklyY > highestPoint) {
         highestPoint = -dorklyY;
@@ -102,8 +126,20 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+function drawPlatform(x, y, width, height) {
+    graphics.fillStyle = 'green';
+    graphics.beginPath();
+    graphics.ellipse(x + width / 2, y + height / 2, width / 3, height / 4, 0, 0, 2 * Math.PI);
+    graphics.fill();
+    graphics.closePath();
+}
+
 addEventListener("keydown", function(event) {
     if (event.key in keyState) {
+        if (!gameStarted && !gameOverShown) {
+            gameStarted = true;
+            gameRunning = true;
+        }
         keyState[event.key] = true;
     }
 });
@@ -118,7 +154,17 @@ addEventListener("keyup", function(event) {
 function platform(){
     // Generate initial platforms
     if (savePlatforms.length === 0) {
-        for(let i = 0; i < 25; i++) { // More initial platforms
+        // First platform always under starting position
+        var startPlatform = {
+            x: canvas.width / 2 - 75, // Centered platform (150/2 = 75)
+            y: canvas.height - 100,   // Near bottom of screen
+            width: 150,
+            height: 20
+        };
+        savePlatforms.push(startPlatform);
+        
+        // Generate rest of the platforms
+        for(let i = 1; i < 25; i++) { // Start from 1 since we already added first platform
             var oblong = {
                 x: Math.floor(Math.random() * (canvas.width - 150)),
                 y: i * 150, // Platforms closer together
@@ -175,21 +221,110 @@ function platform(){
 
 //function to restart the game
 function restartGame() {
-    dorklyX = canvas.width / 2 - 25;
-    dorklyY = canvas.height - 100;
-    velocity = 0;
-    cameraY = 0;
+    // Reset game states
+    gameOverShown = false;
+    gameStarted = false;
+    gameRunning = false;
+    
+    // Clear all game state
     savePlatforms = [];
     highestPlatform = canvas.height;
+    
+    // Generate new platforms (first one will be at bottom center)
     platform();
+    
+    // Position dorkly on the first platform
+    dorklyX = canvas.width / 2 - 25; // Center horizontally
+    dorklyY = canvas.height - 120;   // Just above the platform
+    
+    // Reset other game variables
+    velocity = 0;
+    cameraY = 0;
+    score = 0;
+    highestPoint = 0;
+    gameRunning = true;
+    imageorientation = doodleImgLeft;
+    
+    // Start game loop
     requestAnimationFrame(gameLoop);
 }
 
 //check if he hit the bottom of the screen and displays game over
+let gameRunning = true;
+let gameOverShown = false;
+
 function checkGameOver() {
-    if (dorklyY > canvas.height + cameraY + 100) {
+    // Get current height score
+    let currentHeight = Math.floor(-dorklyY / 10);
+    // Calculate minimum allowed score (highest score minus canvas height)
+    let minimumAllowedScore = score - Math.floor(canvas.height / 10);
+    
+    // End game if player falls too far below their highest point
+    if (currentHeight < minimumAllowedScore && !gameOverShown) {
+        gameRunning = false;
+        gameOverShown = true;
         saveScore(score);
-        alert("Game Over! Your score: " + score);
+        showGameOver();
+    }
+}
+
+function showGameOver() {
+    // Clear the canvas
+    graphics.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw game over screen
+    graphics.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Semi-transparent overlay
+    graphics.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Game Over text
+    graphics.fillStyle = 'white';
+    graphics.font = 'bold 48px Arial';
+    graphics.textAlign = 'center';
+    graphics.fillText('Game Over!', canvas.width / 2, canvas.height / 2 - 50);
+    graphics.font = 'bold 32px Arial';
+    graphics.fillText('Score: ' + score, canvas.width / 2, canvas.height / 2);
+    
+    // Draw restart button
+    drawRestartButton();
+}
+
+function drawRestartButton() {
+    const buttonWidth = 200;
+    const buttonHeight = 50;
+    const buttonX = canvas.width / 2 - buttonWidth / 2;
+    const buttonY = canvas.height / 2 + 50;
+    
+    // Draw button background
+    graphics.fillStyle = '#4CAF50';
+    graphics.beginPath();
+    graphics.roundRect(buttonX, buttonY, buttonWidth, buttonHeight, 10);
+    graphics.fill();
+    
+    // Draw button text
+    graphics.fillStyle = 'white';
+    graphics.font = 'bold 24px Arial';
+    graphics.textAlign = 'center';
+    graphics.fillText('Play Again', canvas.width / 2, buttonY + 33);
+    
+    // Add click listener for the button
+    canvas.addEventListener('click', handleRestartClick);
+}
+
+function handleRestartClick(event) {
+    const buttonWidth = 200;
+    const buttonHeight = 50;
+    const buttonX = canvas.width / 2 - buttonWidth / 2;
+    const buttonY = canvas.height / 2 + 50;
+    
+    const rect = canvas.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+    
+    // Check if click is within button bounds
+    if (clickX >= buttonX && clickX <= buttonX + buttonWidth &&
+        clickY >= buttonY && clickY <= buttonY + buttonHeight) {
+        canvas.removeEventListener('click', handleRestartClick);
+        gameRunning = true;
         restartGame();
     }
 }
