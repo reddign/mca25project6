@@ -101,7 +101,7 @@ function gameLoop() {
     // Draw score
     graphics.fillStyle = 'black';
     graphics.font = '24px Arial';
-    graphics.fillText('Score: ' + score, 20, 30);
+    graphics.fillText('Score: ' + score, 45, 30);
     
     // Keep player in horizontal bounds
     if (dorklyX < 0) dorklyX = 0;
