@@ -3,9 +3,9 @@ console.log("canvas");
 const graphics = canvas.getContext("2d");
 
 const pipeWidth = 30;
-const pipeGap = 60; // Fixed gap between top and bottom pipes
-const pipeSpeed = 1;
-const FPS = 27;
+const pipeGap = 67.67; // Fixed gap between top and bottom pipes
+const pipeSpeed = 1.5;
+const FPS = 67;
 const image = new Image();
 image.src = "flappy-bird.png";
 let birdY = 55;
@@ -19,7 +19,8 @@ var toppipeY=150;
 let lives = 1;
 let score = 0;
 let timesplay= 1;
-
+let pipe1Scored= false;
+let pipe2Scored= false;
 
 
 image.onload = function() {
@@ -34,7 +35,8 @@ function animate(){
     } 
     else{
 clear();
-falling()
+falling();
+scoreBoard();
 pipes();
 drawbird();
 
@@ -53,58 +55,79 @@ dies();
 
 
 }
+function scoreBoard(){
+    graphics.fillStyle = "yellow";
+    graphics.font = "bold 8px 'Arial', serif";
+    let scoreString = "Lives: " + lives + " Score:" + score;
+    graphics.fillText(scoreString,10,10);
 
+}
 
 function pipes(){
         // Collision detection for both pillars
         // Bird rectangle: x=10, y=birdY, w=30, h=30
      graphics.fillStyle = "black";
       
-    // First pillar
-    if (typeof window.pipeX1 === 'undefined') {
-        window.pipeX1 = canvas.width;
-        window.topHeight1 = Math.floor(Math.random() * (canvas.height - pipeGap - 100)) + 50;
-        window.bottomY1 = window.topHeight1 + pipeGap;
-        window.bottomhight1 = canvas.height - window.bottomY1;
+    
+
+
+    if (typeof pipeX1 === 'undefined') {
+        pipeX1 = canvas.width;
+       topHeight1 = Math.floor(Math.random() * (canvas.height - pipeGap - 80 )) + 20;
+      bottomY1 = topHeight1 + pipeGap;
+       bottomhight1 = canvas.height - bottomY1;
     }
-    window.pipeX1 -= pipeSpeed;
-    if (window.pipeX1 + pipeWidth < 0) {
-        window.pipeX1 = canvas.width;
-        window.topHeight1 = Math.floor(Math.random() * (canvas.height - pipeGap - 100)) + 50;
-        window.bottomY1 = window.topHeight1 + pipeGap;
-        window.bottomhight1 = canvas.height - window.bottomY1;
+    pipeX1 -= pipeSpeed;
+    // Score for pipe 1
+    if (!pipe1Scored && 10 > pipeX1 + pipeWidth) {
+        score++;
+        pipe1Scored = true;
     }
+    if (pipeX1 + pipeWidth < 0) {
+        pipeX1 = canvas.width;
+        topHeight1 = Math.floor(Math.random() * (canvas.height - pipeGap - 80)) + 20;
+        bottomY1 = topHeight1 + pipeGap;
+        bottomhight1 = canvas.height - bottomY1;
+        pipe1Scored = false;
+    }
+
     graphics.fillStyle = "black";
-    graphics.fillRect(window.pipeX1, 0, pipeWidth, window.topHeight1);
-    graphics.fillRect(window.pipeX1, window.bottomY1, pipeWidth, window.bottomhight1);
+    graphics.fillRect(pipeX1, 0, pipeWidth, topHeight1);
+    graphics.fillRect(pipeX1, bottomY1, pipeWidth, bottomhight1);
 
     // Second pillar
-    if (typeof window.pipeX2 === 'undefined') {
-        window.pipeX2 = canvas.width + canvas.width / 2;
-        window.topHeight2 = Math.floor(Math.random() * (canvas.height - pipeGap - 100)) + 50;
-        window.bottomY2 = window.topHeight2 + pipeGap;
-        window.bottomhight2 = canvas.height - window.bottomY2;
+    if (typeof pipeX2 === 'undefined') {
+        pipeX2 = canvas.width + canvas.width / 2;
+        topHeight2 = Math.floor(Math.random() * (canvas.height - pipeGap - 60)) + 30;
+       bottomY2 = topHeight2 + pipeGap;
+      bottomhight2 = canvas.height - bottomY2;
     }
-    window.pipeX2 -= pipeSpeed;
-    if (window.pipeX2 + pipeWidth < 0) {
-        window.pipeX2 = canvas.width;
-        window.topHeight2 = Math.floor(Math.random() * (canvas.height - pipeGap - 100)) + 50;
-        window.bottomY2 = window.topHeight2 + pipeGap;
-        window.bottomhight2 = canvas.height - window.bottomY2;
+    pipeX2 -= pipeSpeed;
+    // Score for pipe 2
+    if (!pipe2Scored && 10 > pipeX2 + pipeWidth) {
+        score++;
+        pipe2Scored = true;
+    }
+    if (pipeX2 + pipeWidth < 0) {
+        pipeX2 = canvas.width;
+        topHeight2 = Math.floor(Math.random() * (canvas.height - pipeGap - 60)) + 30;
+        bottomY2 = topHeight2 + pipeGap;
+        bottomhight2 = canvas.height - bottomY2;
+        pipe2Scored = false;
     }
 
     graphics.fillStyle = "black";
-    graphics.fillRect(window.pipeX2, 0, pipeWidth, window.topHeight2);
-    graphics.fillRect(window.pipeX2, window.bottomY2, pipeWidth, window.bottomhight2);
+    graphics.fillRect(pipeX2, 0, pipeWidth, topHeight2);
+    graphics.fillRect(pipeX2, bottomY2, pipeWidth, bottomhight2);
 }
 function drawbird(){
-    graphics.drawImage(image, 10, birdY, 30, 30);
+    graphics.drawImage(image, 10, birdY, 25, 25);
 }
 function createPipe() {
       
 
   // Random height for the top pipe (between 50 and canvasHeight - pipeGap - 50)
-  const topHeight = Math.floor(Math.random() * (canvas.height - pipeGap - 100)) + 50;
+  const topHeight = Math.floor(Math.random() * (canvas.height - pipeGap - 100)) + 100;
 
  // Bottom pipe starts after the gap
   const bottomY = topHeight + pipeGap;
@@ -161,8 +184,32 @@ function dies() {
             birdY = 55;
         }
     }
-  
+    if (
+    (40 > pipeX1 && 10 < pipeX1 + pipeWidth) &&
+    (birdY < topHeight1 || birdY + 30 > bottomY1)) {
+     lives--;
+        if (lives <= 0) {
+            clearInterval(birdInterval);
+            endscreen();
+        } else {
+            birdY = 55;
+        }
+    }
+// Hit pillar 2 (top or bottom)
+if (
+    (40 > pipeX2 && 10 < pipeX2 + pipeWidth) &&
+    (birdY < topHeight2 || birdY + 30 > bottomY2)) {
+     lives--;
+        if (lives <= 0) {
+            clearInterval(birdInterval);
+            endscreen();
+        } else {
+            birdY = 55;
+        }
+    }
 }
+  
+
 
 function endscreen(){
   graphics.clearRect(0, 0, canvas.width, canvas.height);
@@ -176,26 +223,39 @@ function endscreen(){
 function restartbutton(){
     graphics.fillStyle="magenta";
     graphics.fillRect(100,100,75,20); // Button area
+    graphics.font = "12px Arial";
     graphics.fillStyle="black";
     graphics.fillText("play again", 110, 115); // Text inside button
-    graphics.font = "16px Arial";
+    // Remove any previous listener to avoid stacking
+    canvas.removeEventListener("click", checkrestart);
     canvas.addEventListener("click", checkrestart); // Listen for clicks
 }
    
 function checkrestart(e){
     let canvasrect = canvas.getBoundingClientRect();
-    let cx = e.clientX - canvasrect.x;
-    let cy = e.clientY - canvasrect.y;
+    let cx = (e.clientX - canvasrect.left) * (canvas.width / canvasrect.width);
+    let cy = (e.clientY - canvasrect.top) * (canvas.height / canvasrect.height);
     if(lives <= 0 && cx >= 100 && cx <= 175 && cy >= 100 && cy <= 120){
         lives = 1;
         score = 0;
         birdY = 55;
+        velocity = 0;
+        pipeX1 = canvas.width;
+        topHeight1 = Math.floor(Math.random() * (canvas.height - pipeGap - 40 )) + 50;
+        bottomY1 = topHeight1 + pipeGap;
+        bottomhight1 = canvas.height - bottomY1;
+        pipe1Scored = false;
+        pipeX2 = canvas.width + canvas.width / 2;
+        topHeight2 = Math.floor(Math.random() * (canvas.height - pipeGap - 50)) + 50;
+        bottomY2 = topHeight2 + pipeGap;
+        bottomhight2 = canvas.height - bottomY2;
+        pipe2Scored = false;
         canvas.removeEventListener("click", checkrestart); // Remove listener after restart
-        animate();
+        requestAnimationFrame(animate);
     }
 }
 
-window.setInterval(animate,FPS/1000)
+// window.setInterval(animate,FPS/1000)
 
 // onmouseclick
 // velocity+10;
