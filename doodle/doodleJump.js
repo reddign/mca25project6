@@ -2,6 +2,7 @@ var canvas = document.querySelector("canvas");
 canvas.width = 800;  
 canvas.height = 600; 
 var graphics = canvas.getContext("2d");
+var animationFrameId = null;
 
 var cameraY = 0; 
 var highestPlatform = 0; // Track highest platform for infinitvar gameRunning = false; // Start as false until player presses a key
@@ -51,6 +52,9 @@ var keyState = ['ArrowLeft', 'ArrowRight'].reduce((acc, key) => {
 var savePlatforms = [];
 
 function gameLoop() {
+    // If game over is shown, don't run game loop
+    if (gameOverShown) return;
+
     // Clear the canvas
     graphics.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -122,7 +126,10 @@ function gameLoop() {
     // Check for game over
     
     // Loop the animation
-    requestAnimationFrame(gameLoop);
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    animationFrameId = requestAnimationFrame(gameLoop);
     checkGameOver();
     
 }
@@ -235,8 +242,8 @@ function restartGame() {
     platform();
     
     // Position dorkly on the first platform
-    dorklyX = canvas.width / 2 - 25; // Center horizontally
-    dorklyY = canvas.height - 120;   // Just above the platform
+    dorklyX = canvas.width / 2 - 35; // Center horizontally
+    dorklyY = canvas.height - 140;   // Just above the platform
     
     // Reset other game variables
     velocity = 0;
@@ -262,10 +269,24 @@ function checkGameOver() {
     
     // End game if player falls too far below their highest point
     if (currentHeight < minimumAllowedScore && !gameOverShown) {
+        // Cancel the main game loop
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        
         gameRunning = false;
+        gameStarted = false;
         gameOverShown = true;
         saveScore(score);
         showGameOver();
+        // Keep showing game over screen
+        animationFrameId = requestAnimationFrame(function showGameOverLoop() {
+            showGameOver();
+            if (gameOverShown) {
+                animationFrameId = requestAnimationFrame(showGameOverLoop);
+            }
+        });
     }
 }
 
@@ -324,9 +345,16 @@ function handleRestartClick(event) {
     // Check if click is within button bounds
     if (clickX >= buttonX && clickX <= buttonX + buttonWidth &&
         clickY >= buttonY && clickY <= buttonY + buttonHeight) {
+        // Remove event listener before restarting
         canvas.removeEventListener('click', handleRestartClick);
-        gameRunning = true;
+        // Reset all game states in the correct order
+        gameOverShown = false;
+        gameStarted = false;
+        gameRunning = false;
+        // Now restart the game
         restartGame();
+        // Restart the game loop
+        requestAnimationFrame(gameLoop);
     }
 }
 
@@ -334,12 +362,12 @@ function handleRestartClick(event) {
 
 function saveScore(score) {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "processScores.php", true);
+    xhr.open("POST", "../login/processes/processScores.php", true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             console.log("Score saved successfully: " + score);
         }
     };
-    xhr.send("game=doodleJump&score=" + score + "&username=" + encodeURIComponent(localStorage.getItem('username')));
+    xhr.send("game=doodle&score=" + score);
 }

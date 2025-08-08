@@ -1,30 +1,8 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <canvas  width="670px" height="670px" style="background-color: lightblue;"></canvas>
-    
+<?php
+session_start();
 
-    <div style ="float:right; margin-right: 40px; margin-top: 20px;">
-        <h1>Score</h1>
-        <table style = "border-color: black; border-style: solid; border-width: 3px;">
-            <tr><th>Player</th><th>Score</th><th>Time</th></tr>
-            <tr><td>Player 1</td><td>0</td><td>0:00</td></tr>
-            <tr><td>Player 2</td><td>0</td><td>0:00</td></tr>
-            <?php
-            echo "more data coming soon";
-            ?>
-        </table>
-
-
-        <script src="doodleJump.js" defer></script>
-
-         <?php
-         
- if($_SERVER['HTTP_HOST'] == "127.0.0.1") {
+// Database connection
+if($_SERVER['HTTP_HOST'] == "127.0.0.1") {
     $mysqli = new mysqli("localhost", "root", "", "mca");
 } else {
     $mysqli = new mysqli("195.35.59.14", "u121755072_adu", "fH:=aeo*l^D2", "u121755072_adudb");
@@ -34,14 +12,60 @@ if ($mysqli->connect_error) {
     exit;
 }
 
+// Get top scores
+$sql = "SELECT s.score, s.timestamp, s.userid
+        FROM scores s 
+        JOIN users u ON s.userid = u.id 
+        WHERE s.game = 'doodle' 
+        ORDER BY s.score DESC 
+        LIMIT 10";
 
-$result = $mysqli -> query($sql);
-$rows = $result -> fetch_all(MYSQLI_ASSOC);
+$result = $mysqli->query($sql);
 
-foreach($rows as $row){
-    print("<tr><td>".$row["userid"]."</td><td>".$row["score"]."</td><td>".$row["timestamp"]."</td></tr>");
+if (!$result) {
+    die("Query failed: " . $mysqli->error);
+}
+$scoreRows = $result->fetch_all(MYSQLI_ASSOC);
+
+// Debug information
+if (count($scoreRows) == 0) {
+    echo "<!-- No scores found in database -->";
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doodle Jump Game</title>
+</head>
+<body>
+    <canvas width="670px" height="670px" style="background-color: lightblue;"></canvas>
+
+    <div style="float:right; margin-right: 40px; margin-top: 20px;">
+        <h1>Top Scores</h1>
+        
+        <table style="border-collapse: collapse; border: 3px solid black; padding: 8px;">
+            <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; border: 1px solid black;">Player</th>
+                <th style="padding: 10px; border: 1px solid black;">Score</th>
+                <th style="padding: 10px; border: 1px solid black;">Time</th>
+            </tr>
+            <?php
+            if (empty($scoreRows)) {
+                echo '<tr><td colspan="3" style="text-align: center; padding: 10px;">No scores yet!</td></tr>';
+            } else {
+                foreach ($scoreRows as $row) { ?>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid black;"><?php echo htmlspecialchars($row['userid']); ?></td>
+                        <td style="padding: 8px; border: 1px solid black;"><?php echo htmlspecialchars($row['score']); ?></td>
+                        <td style="padding: 8px; border: 1px solid black;"><?php echo htmlspecialchars($row['timestamp']); ?></td>
+                    </tr>
+            <?php }
+            } ?>
+        </table>
+
+        <script src="doodleJump.js" defer></script>
     </div>
 </body>
 </html>
